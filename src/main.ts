@@ -42,6 +42,7 @@ class TestReporter {
   readonly workDirInput = core.getInput('working-directory', {required: false})
   readonly onlySummary = core.getInput('only-summary', {required: false}) === 'true'
   readonly token = core.getInput('token', {required: true})
+  readonly owner = core.getInput('owner', { required: true });
   readonly octokit: InstanceType<typeof GitHub>
   readonly context = getCheckRunContext()
 
@@ -189,6 +190,18 @@ class TestReporter {
       },
       ...github.context.repo
     })
+
+    const { payload: { pull_request, repository, issue }, sha: commit_sha } = github.context;
+    core.info('' + github.context.payload);
+    if (pull_request && issue && repository) {
+      await this.octokit.issues.createComment({
+        body: summary,
+        issue_number: issue.number,
+        owner: this.owner,
+        repo: repository.name,
+      })
+    }
+
     core.info(`Check run create response: ${resp.status}`)
     core.info(`Check run URL: ${resp.data.url}`)
     core.info(`Check run HTML: ${resp.data.html_url}`)
