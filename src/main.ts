@@ -192,7 +192,7 @@ class TestReporter {
     })
 
     const { payload: { pull_request, repository, issue }, sha: commit_sha } = github.context;
-    core.info('' + github.context.payload);
+    core.info(JSON.stringify(github.context.payload));
     if (pull_request && issue && repository) {
       await this.octokit.issues.createComment({
         body: summary,
